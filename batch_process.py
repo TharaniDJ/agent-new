@@ -17,26 +17,40 @@ from openapi_agent import OpenAPIAgent, get_memory_entry, _memory_key
 # ─────────────────────────────────────────────────────────────────────────────
 API_DOCS = [
     {
-        "name": "Stripe",
-        "docs_url": "https://docs.stripe.com/api",
-        "check_frequency_days": 1,      # updates frequently
-    },
-    {
-        "name": "GitHub",
-        "docs_url": "https://docs.github.com/en/rest",
-        "check_frequency_days": 7,      # check weekly
-    },
-    {
-        "name": "OpenAI",
-        "docs_url": "https://platform.openai.com/docs/api-reference",
+        "name": "Asana",
+        "docs_url": "https://developers.asana.com/reference/rest-api-reference",
         "check_frequency_days": 7,
     },
-    # Add more APIs below:
-    # {
-    #     "name": "Twilio",
-    #     "docs_url": "https://www.twilio.com/docs/usage/api",
-    #     "check_frequency_days": 30,   # updates rarely
-    # },
+    {
+        "name": "Candid",
+        "docs_url": "https://developer.candid.org/reference/openapi",
+        "check_frequency_days": 30,
+    },
+    {
+        "name": "Dayforce",
+        "docs_url": "https://developers.dayforce.com/Build/Home.aspx",
+        "check_frequency_days": 30,
+    },
+    {
+        "name": "Discord",
+        "docs_url": "https://discord.com/developers/docs/reference",
+        "check_frequency_days": 7,
+    },
+    {
+        "name": "DocuSign Admin API",
+        "docs_url": "https://developers.docusign.com/docs/admin-api/",
+        "check_frequency_days": 30,
+    },
+    {
+        "name": "DocuSign Click API",
+        "docs_url": "https://developers.docusign.com/docs/click-api/",
+        "check_frequency_days": 30,
+    },
+    {
+        "name": "DocuSign eSign API",
+        "docs_url": "https://developers.docusign.com/docs/esign-rest-api/",
+        "check_frequency_days": 30,
+    },
 ]
 
 
@@ -80,7 +94,6 @@ def batch_find_specs(output_file: str = "openapi_specs.json"):
         print("=" * 70)
 
         if should_skip(api):
-            # Only reached once TODO block is activated
             results.append({
                 "name": api["name"],
                 "docs_url": api["docs_url"],
@@ -113,7 +126,11 @@ def batch_find_specs(output_file: str = "openapi_specs.json"):
                 "found_at": datetime.now(timezone.utc).isoformat(),
             }
             symbol = "✓"
-            version_tag = f"  (NEW VERSION: {result_data['version']})" if result_data["is_new_version"] else f"  v{result_data['version']}"
+            version_tag = (
+                f"  (NEW VERSION: {result_data['version']})"
+                if result_data["is_new_version"]
+                else f"  v{result_data['version']}"
+            )
         else:
             result = {
                 "name": api["name"],
@@ -152,11 +169,12 @@ def batch_find_specs(output_file: str = "openapi_specs.json"):
     for r in results:
         if r["status"] == "found":
             tag = " ← NEW VERSION" if r["is_new_version"] else ""
-            print(f"  ✓ {r['name']:20s} {r['format'].upper() if r['format'] else '?':5s}  v{r['version']}  {r['spec_url']}{tag}")
+            fmt = r["format"].upper() if r["format"] else "?"
+            print(f"  ✓ {r['name']:25s} {fmt:5s}  v{r['version']}  {r['spec_url']}{tag}")
         elif r["status"] == "skipped":
-            print(f"  - {r['name']:20s} skipped (frequency not due)")
+            print(f"  - {r['name']:25s} skipped (frequency not due)")
         else:
-            print(f"  ✗ {r['name']:20s} not found")
+            print(f"  ✗ {r['name']:25s} not found")
 
 
 if __name__ == "__main__":

@@ -1,38 +1,86 @@
 [
   {
-    "name": "Stripe",
-    "docs_url": "https://docs.stripe.com/api",
-    "spec_url": "https://raw.githubusercontent.com/stripe/openapi/master/latest/openapi.spec3.yaml",
-    "version": "3.0.0",
-    "format": "yaml",
-    "title": "Stripe API",
-    "status": "found",
-    "is_new_version": false,
-    "check_frequency_days": 1,
-    "found_at": "2026-03-19T10:05:24.441846+00:00"
-  },
-  {
-    "name": "GitHub",
-    "docs_url": "https://docs.github.com/en/rest",
-    "spec_url": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.yaml",
-    "version": "3.0.3",
-    "format": "yaml",
-    "title": "GitHub v3 REST API",
-    "status": "found",
+    "name": "Asana",
+    "docs_url": "https://developers.asana.com/reference/rest-api-reference",
+    "spec_url": null,
+    "version": null,
+    "format": null,
+    "title": null,
+    "status": "not_found",
     "is_new_version": false,
     "check_frequency_days": 7,
-    "found_at": "2026-03-19T10:07:10.755578+00:00"
+    "found_at": null
   },
   {
-    "name": "OpenAI",
-    "docs_url": "https://platform.openai.com/docs/api-reference",
-    "spec_url": "https://app.stainless.com/api/spec/documented/openai/openapi.documented.yml",
+    "name": "Candid",
+    "docs_url": "https://developer.candid.org/reference/openapi",
+    "spec_url": "https://developer.candid.org/openapi/657c90360880c0005bb63d43",
+    "version": "3.0.1",
+    "format": "json",
+    "title": "Grants API",
+    "status": "found",
+    "is_new_version": false,
+    "check_frequency_days": 30,
+    "found_at": "2026-03-20T06:02:44.568271+00:00"
+  },
+  {
+    "name": "Dayforce",
+    "docs_url": "https://developers.dayforce.com/Build/Home.aspx",
+    "spec_url": null,
+    "version": null,
+    "format": null,
+    "title": null,
+    "status": "not_found",
+    "is_new_version": false,
+    "check_frequency_days": 30,
+    "found_at": null
+  },
+  {
+    "name": "Discord",
+    "docs_url": "https://discord.com/developers/docs/reference",
+    "spec_url": "https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json",
     "version": "3.1.0",
-    "format": "yaml",
-    "title": "OpenAI API",
+    "format": "json",
+    "title": "Discord HTTP API (Preview)",
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 7,
-    "found_at": "2026-03-19T10:07:49.868589+00:00"
+    "found_at": "2026-03-20T06:03:27.129721+00:00"
+  },
+  {
+    "name": "DocuSign Admin API",
+    "docs_url": "https://developers.docusign.com/docs/admin-api/",
+    "spec_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/admin.rest.swagger-v2.json",
+    "version": "2.0",
+    "format": "json",
+    "title": "DocuSign Admin API",
+    "status": "found",
+    "is_new_version": false,
+    "check_frequency_days": 30,
+    "found_at": "2026-03-20T06:03:52.257539+00:00"
+  },
+  {
+    "name": "DocuSign Click API",
+    "docs_url": "https://developers.docusign.com/docs/click-api/",
+    "spec_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/click.rest.swagger-v2.json",
+    "version": "2.0",
+    "format": "json",
+    "title": "DocuSign Click API",
+    "status": "found",
+    "is_new_version": false,
+    "check_frequency_days": 30,
+    "found_at": "2026-03-20T06:04:11.902522+00:00"
+  },
+  {
+    "name": "DocuSign eSign API",
+    "docs_url": "https://developers.docusign.com/docs/esign-rest-api/",
+    "spec_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/esignature.rest.swagger-v2.1.json",
+    "version": "2.0",
+    "format": "json",
+    "title": "Docusign eSignature REST API",
+    "status": "found",
+    "is_new_version": false,
+    "check_frequency_days": 30,
+    "found_at": "2026-03-20T06:04:31.173553+00:00"
   }
 ]

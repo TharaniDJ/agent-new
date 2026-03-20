@@ -39,5 +39,70 @@
     ],
     "search_notes": "Found the official OpenAI OpenAPI repository which points to the most recent spec at Stainless and also contains a manual spec file.",
     "last_searched": "2026-03-19T10:07:49.867869+00:00"
+  },
+  "developer.candid.org/reference/openapi": {
+    "last_found_version": "3.0.1",
+    "last_found_url": "https://developer.candid.org/openapi/657c90360880c0005bb63d43",
+    "last_search_outcome": "found",
+    "useful_pages": [
+      "https://developer.candid.org/reference/openapi",
+      "https://developer.candid.org/openapi"
+    ],
+    "search_notes": "Found multiple OpenAPI 3.0.1 JSON specifications for different Candid APIs (Grants, CharityCheck, Demographics, etc.) all at v1.0.",
+    "last_searched": "2026-03-20T06:02:44.560955+00:00"
+  },
+  "developers.dayforce.com/Build/Home.aspx": {
+    "last_search_outcome": "not_found",
+    "last_searched": "2026-03-20T06:03:01.242400+00:00"
+  },
+  "discord.com/developers/docs/reference": {
+    "last_found_version": "3.1.0",
+    "last_found_url": "https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json",
+    "last_search_outcome": "found",
+    "spec_repo": "https://github.com/discord/discord-api-spec",
+    "useful_pages": [
+      "https://discord.com/developers/docs/reference",
+      "https://github.com/discord",
+      "https://github.com/discord/discord-api-spec",
+      "https://github.com/discord/discord-api-spec/tree/main/specs"
+    ],
+    "search_notes": "Found Discord's official OpenAPI spec repository on GitHub containing both stable and preview versions for API v10.",
+    "last_searched": "2026-03-20T06:03:27.129224+00:00"
+  },
+  "developers.docusign.com/docs/admin-api": {
+    "last_found_version": "2.0",
+    "last_found_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/admin.rest.swagger-v2.json",
+    "last_search_outcome": "found",
+    "spec_repo": "https://github.com/docusign/docusign-admin-node-client",
+    "useful_pages": [
+      "https://developers.docusign.com/docs/admin-api/",
+      "https://github.com/docusign",
+      "https://github.com/docusign/docusign-admin-node-client"
+    ],
+    "search_notes": "Found DocuSign Admin SDK repository with swagger-codegen configuration, indicating OpenAPI spec generation from their standard specifications repository.",
+    "last_searched": "2026-03-20T06:03:52.249580+00:00"
+  },
+  "developers.docusign.com/docs/click-api": {
+    "last_found_version": "2.0",
+    "last_found_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/click.rest.swagger-v2.json",
+    "last_search_outcome": "found",
+    "spec_repo": "https://github.com/docusign/OpenAPI-Specifications",
+    "useful_pages": [
+      "https://github.com/docusign/OpenAPI-Specifications"
+    ],
+    "search_notes": "Found DocuSign's official OpenAPI Specifications repository on GitHub with Click API v2 spec file.",
+    "last_searched": "2026-03-20T06:04:11.901635+00:00"
+  },
+  "developers.docusign.com/docs/esign-rest-api": {
+    "last_found_version": "2.0",
+    "last_found_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/esignature.rest.swagger-v2.1.json",
+    "last_search_outcome": "found",
+    "spec_repo": "https://github.com/docusign/OpenAPI-Specifications",
+    "useful_pages": [
+      "https://github.com/docusign/OpenAPI-Specifications",
+      "https://github.com/docusign/OpenAPI-Specifications/releases"
+    ],
+    "search_notes": "Found in official DocuSign OpenAPI-Specifications GitHub repository with latest release 20.1.00, v2.1 is the highest version available.",
+    "last_searched": "2026-03-20T06:04:31.172742+00:00"
   }
 }
