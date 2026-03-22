@@ -9,19 +9,19 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 1,
-    "found_at": "2026-03-19T10:05:24.441846+00:00"
+    "found_at": "2026-03-20T06:26:27.714081+00:00"
   },
   {
     "name": "GitHub",
     "docs_url": "https://docs.github.com/en/rest",
-    "spec_url": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.yaml",
-    "version": "3.0.3",
-    "format": "yaml",
-    "title": "GitHub v3 REST API",
-    "status": "found",
+    "spec_url": null,
+    "version": null,
+    "format": null,
+    "title": null,
+    "status": "not_found",
     "is_new_version": false,
     "check_frequency_days": 7,
-    "found_at": "2026-03-19T10:07:10.755578+00:00"
+    "found_at": null
   },
   {
     "name": "OpenAI",
@@ -33,6 +33,6 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 7,
-    "found_at": "2026-03-19T10:07:49.868589+00:00"
+    "found_at": "2026-03-20T06:27:35.433594+00:00"
   }
 ]

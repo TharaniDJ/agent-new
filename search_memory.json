@@ -6,12 +6,12 @@
     "spec_repo": "https://github.com/stripe/openapi",
     "useful_pages": [
       "https://docs.stripe.com/api",
-      "https://github.com/stripe",
       "https://github.com/stripe/openapi",
+      "https://github.com/stripe/openapi/releases",
       "https://github.com/stripe/openapi/tree/master/latest"
     ],
-    "search_notes": "Found Stripe's official OpenAPI repository with latest GA specifications in /latest/ directory containing both v1 and v2 endpoints.",
-    "last_searched": "2026-03-19T10:05:24.441234+00:00"
+    "search_notes": "Found Stripe's official OpenAPI repository with latest release v2204 containing unified GA specifications with both v1 and v2 endpoints.",
+    "last_searched": "2026-03-20T06:26:27.711985+00:00"
   },
   "docs.github.com/en/rest": {
     "last_found_version": "3.0.3",
@@ -38,6 +38,6 @@
       "https://github.com/openai/openai-openapi/tree/manual_spec"
     ],
     "search_notes": "Found the official OpenAI OpenAPI repository which points to the most recent spec at Stainless and also contains a manual spec file.",
-    "last_searched": "2026-03-19T10:07:49.867869+00:00"
+    "last_searched": "2026-03-20T06:27:35.432965+00:00"
   }
 }
