@@ -39,5 +39,57 @@
     ],
     "search_notes": "Found the official OpenAI OpenAPI repository which points to the most recent spec at Stainless and also contains a manual spec file.",
     "last_searched": "2026-03-19T10:07:49.867869+00:00"
+  },
+  "developers.asana.com/reference/rest-api-reference": {
+    "last_found_version": "3.0.0",
+    "last_found_url": "https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml",
+    "last_search_outcome": "found",
+    "spec_repo": "https://github.com/Asana/openapi",
+    "useful_pages": [
+      "https://developers.asana.com/docs",
+      "https://github.com/Asana/openapi"
+    ],
+    "search_notes": "Found the official Asana OpenAPI repository on GitHub with two specification files - one for the REST API and one for app components.",
+    "last_searched": "2026-03-22T16:46:19.310692+00:00"
+  },
+  "developers.docusign.com/docs/esign-rest-api": {
+    "last_found_version": "2.0",
+    "last_found_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/esignature.rest.swagger-v2.1.json",
+    "last_search_outcome": "found",
+    "spec_repo": "https://github.com/docusign/OpenAPI-Specifications",
+    "useful_pages": [
+      "https://developers.docusign.com/docs/esign-rest-api/",
+      "https://github.com/docusign/OpenAPI-Specifications",
+      "https://github.com/docusign/OpenAPI-Specifications/releases"
+    ],
+    "search_notes": "Found official OpenAPI specifications in DocuSign's GitHub repository, with v2.1 being the latest version.",
+    "last_searched": "2026-03-22T16:47:57.881976+00:00"
+  },
+  "developer.candid.org/reference/openapi": {
+    "last_found_version": "3.0.1",
+    "last_found_url": "https://developer.candid.org/openapi/69a9fcbafe150e84ef5085b9",
+    "last_search_outcome": "found",
+    "useful_pages": [
+      "https://developer.candid.org/reference/openapi",
+      "https://developer.candid.org/openapi"
+    ],
+    "search_notes": "Found the Premier API v1.0 OpenAPI 3.0.1 specification directly from the Candid developer documentation OpenAPI listings page.",
+    "last_searched": "2026-03-22T16:48:49.277870+00:00"
+  },
+  "discord.com/developers/docs/reference": {
+    "last_found_version": "3.1.0",
+    "last_found_url": "https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json",
+    "last_search_outcome": "found",
+    "spec_repo": "https://github.com/discord/discord-api-spec",
+    "useful_pages": [
+      "https://discord.com/developers/docs/change-log",
+      "https://github.com/discord/discord-api-spec"
+    ],
+    "search_notes": "Found Discord's official OpenAPI 3.1 specification repository referenced in their developer docs changelog.",
+    "last_searched": "2026-03-22T16:49:34.716028+00:00"
+  },
+  "developers.dayforce.com/Build/Home.aspx": {
+    "last_search_outcome": "not_found",
+    "last_searched": "2026-03-22T16:49:54.336069+00:00"
   }
 }
