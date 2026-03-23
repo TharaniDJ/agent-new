@@ -10,46 +10,46 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 7,
-    "found_at": "2026-03-22T16:46:19.311686+00:00"
+    "found_at": "2026-03-23T09:37:40.789761+00:00"
   },
   {
     "name": "GitHub",
     "docs_url": "https://docs.github.com/en/rest",
     "target_spec": null,
-    "spec_url": null,
-    "version": null,
-    "format": null,
-    "title": null,
-    "status": "not_found",
-    "is_new_version": false,
+    "spec_url": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions-next/api.github.com/api.github.com.yaml",
+    "version": "3.1.0",
+    "format": "yaml",
+    "title": "GitHub v3 REST API",
+    "status": "found",
+    "is_new_version": true,
     "check_frequency_days": 7,
-    "found_at": null
+    "found_at": "2026-03-23T09:39:20.894790+00:00"
   },
   {
     "name": "DocuSign Admin API",
     "docs_url": "https://developers.docusign.com/docs/admin-api/",
     "target_spec": null,
-    "spec_url": null,
-    "version": null,
-    "format": null,
-    "title": null,
-    "status": "not_found",
+    "spec_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/admin.rest.swagger-v2.1.json",
+    "version": "2.0",
+    "format": "json",
+    "title": "Docusign Admin API",
+    "status": "found",
     "is_new_version": false,
     "check_frequency_days": 30,
-    "found_at": null
+    "found_at": "2026-03-23T09:39:48.046096+00:00"
   },
   {
     "name": "DocuSign Click API",
     "docs_url": "https://developers.docusign.com/docs/click-api/",
     "target_spec": null,
-    "spec_url": null,
-    "version": null,
-    "format": null,
-    "title": null,
-    "status": "not_found",
+    "spec_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/click.rest.swagger-v2.json",
+    "version": "2.0",
+    "format": "json",
+    "title": "DocuSign Click API",
+    "status": "found",
     "is_new_version": false,
     "check_frequency_days": 30,
-    "found_at": null
+    "found_at": "2026-03-23T09:40:11.412386+00:00"
   },
   {
     "name": "DocuSign eSign API",
@@ -62,7 +62,7 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 30,
-    "found_at": "2026-03-22T16:47:57.888925+00:00"
+    "found_at": "2026-03-23T09:40:32.267191+00:00"
   },
   {
     "name": "Candid CharityCheckPdf",
@@ -75,7 +75,7 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 30,
-    "found_at": "2026-03-22T16:48:13.236072+00:00"
+    "found_at": "2026-03-23T09:40:51.556098+00:00"
   },
   {
     "name": "Candid Essentials",
@@ -88,7 +88,7 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 30,
-    "found_at": "2026-03-22T16:48:31.839607+00:00"
+    "found_at": "2026-03-23T09:41:12.146834+00:00"
   },
   {
     "name": "Candid Premier",
@@ -101,7 +101,7 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 30,
-    "found_at": "2026-03-22T16:48:49.278570+00:00"
+    "found_at": "2026-03-23T09:41:27.908590+00:00"
   },
   {
     "name": "Discord",
@@ -114,7 +114,7 @@
     "status": "found",
     "is_new_version": false,
     "check_frequency_days": 7,
-    "found_at": "2026-03-22T16:49:34.716823+00:00"
+    "found_at": "2026-03-23T09:41:48.410497+00:00"
   },
   {
     "name": "Dayforce",
