@@ -5,6 +5,12 @@ Supports multi-spec entries: one docs URL can produce multiple separate spec res
 (e.g. Candid which has CharityCheckPdf, Essentials, Premier as separate specs).
 
 check_frequency_days is stored but the skip logic is inactive until tested (see TODO).
+
+API notes:
+- Guidewire InsNow: portal requires auth; agent will attempt but may not find a public spec
+- HubSpot: specs are split per product in github.com/HubSpot/HubSpot-public-api-spec-collection
+  Each HubSpot module needs its own entry with target_spec pointing to the product folder name
+- Google APIs: specs served via apis.guru discovery layer (googleapis.com entries)
 """
 
 import json
@@ -12,70 +18,253 @@ import os
 from datetime import datetime, timezone
 from openapi_agent import OpenAPIAgent, get_memory_entry
 
-# ─────────────────────────────────────────────────────────────────────────────
-# API list.
-#
-# For multi-spec APIs, add "target_specs" — a list of named specs to extract
-# separately from the same docs URL.
-# Each entry in target_specs becomes its own row in the output.
-# ─────────────────────────────────────────────────────────────────────────────
 API_DOCS = [
-    # ── Previously failing / mentioned in review ──────────────────────────────
+    # ── Guidewire ─────────────────────────────────────────────────────────────
+    # ⚠ InsNow API access requires a Guidewire partner/customer account.
+    # The public API reference page exists but the spec download may be gated.
+    # Agent will attempt; expect not_found if the portal blocks bots.
     {
-        "name": "Asana",
-        "docs_url": "https://developers.asana.com/reference/rest-api-reference",
-        "check_frequency_days": 7,
-    },
-    {
-        "name": "GitHub",
-        "docs_url": "https://docs.github.com/en/rest",
-        "check_frequency_days": 7,
-    },
-    {
-        "name": "DocuSign Admin API",
-        "docs_url": "https://developers.docusign.com/docs/admin-api/",
-        "check_frequency_days": 30,
-    },
-    {
-        "name": "DocuSign Click API",
-        "docs_url": "https://developers.docusign.com/docs/click-api/",
-        "check_frequency_days": 30,
-    },
-    {
-        "name": "DocuSign eSign API",
-        "docs_url": "https://developers.docusign.com/docs/esign-rest-api/",
+        "name": "Guidewire InsNow",
+        "docs_url": "https://www.guidewire.com/Developers/APIs/InsuranceNow-APIs",
         "check_frequency_days": 30,
     },
 
-    # ── Candid: 3 specific specs from one docs URL ────────────────────────────
+    # ── HubSpot ───────────────────────────────────────────────────────────────
+    # HubSpot hosts all their per-product OpenAPI specs in one GitHub repo:
+    # github.com/HubSpot/HubSpot-public-api-spec-collection
+    # The folder structure is: PublicApiSpecs/{Category}/{ProductName}/
+    # Each entry below uses the same docs_url (the GitHub repo) and a
+    # target_spec that tells the agent which product folder to look in.
     {
-        "name": "Candid CharityCheckPdf",
-        "docs_url": "https://developer.candid.org/reference/openapi",
-        "check_frequency_days": 30,
-        "target_spec": "CharityCheckPdf",    # tells agent which named spec to find
+        "name": "HubSpot Automation Actions",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Automation_Actions",
     },
     {
-        "name": "Candid Essentials",
-        "docs_url": "https://developer.candid.org/reference/openapi",
-        "check_frequency_days": 30,
-        "target_spec": "Essentials",
+        "name": "HubSpot CRM Associations",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Associations",
     },
     {
-        "name": "Candid Premier",
-        "docs_url": "https://developer.candid.org/reference/openapi",
-        "check_frequency_days": 30,
-        "target_spec": "Premier API",
+        "name": "HubSpot CRM Associations Schema",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Association_Schema",
+    },
+    {
+        "name": "HubSpot CRM Commerce Carts",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Carts",
+    },
+    {
+        "name": "HubSpot CRM Commerce Discounts",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Discounts",
+    },
+    {
+        "name": "HubSpot CRM Commerce Orders",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Orders",
+    },
+    {
+        "name": "HubSpot CRM Commerce Quotes",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Quotes",
+    },
+    {
+        "name": "HubSpot CRM Commerce Taxes",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Taxes",
+    },
+    {
+        "name": "HubSpot CRM Engagement Meeting",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Meetings",
+    },
+    {
+        "name": "HubSpot CRM Engagement Notes",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Notes",
+    },
+    {
+        "name": "HubSpot CRM Engagements Calls",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Calls",
+    },
+    {
+        "name": "HubSpot CRM Engagements Communications",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Communications",
+    },
+    {
+        "name": "HubSpot CRM Engagements Email",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Emails",
+    },
+    {
+        "name": "HubSpot CRM Engagements Tasks",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Tasks",
+    },
+    {
+        "name": "HubSpot CRM Extensions Timelines",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Timeline",
+    },
+    {
+        "name": "HubSpot CRM Extensions Videoconferencing",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Video_Conferencing_Extension",
+    },
+    {
+        "name": "HubSpot CRM Import",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Imports",
+    },
+    {
+        "name": "HubSpot CRM Lists",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Lists",
+    },
+    {
+        "name": "HubSpot CRM Object Companies",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Companies",
+    },
+    {
+        "name": "HubSpot CRM Object Contacts",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Contacts",
+    },
+    {
+        "name": "HubSpot CRM Object Deals",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Deals",
+    },
+    {
+        "name": "HubSpot CRM Object Feedback",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Feedback_Submissions",
+    },
+    {
+        "name": "HubSpot CRM Object Leads",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Leads",
+    },
+    {
+        "name": "HubSpot CRM Object Line Items",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Line_Items",
+    },
+    {
+        "name": "HubSpot CRM Object Products",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Products",
+    },
+    {
+        "name": "HubSpot CRM Object Schemas",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Schemas",
+    },
+    {
+        "name": "HubSpot CRM Object Tickets",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Tickets",
+    },
+    {
+        "name": "HubSpot CRM Owners",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Owners",
+    },
+    {
+        "name": "HubSpot CRM Pipelines",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Pipelines",
+    },
+    {
+        "name": "HubSpot CRM Properties",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Properties",
+    },
+    {
+        "name": "HubSpot Marketing Campaigns",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Campaigns",
+    },
+    {
+        "name": "HubSpot Marketing Emails",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Marketing_Emails",
+    },
+    {
+        "name": "HubSpot Marketing Events",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Marketing_Events",
+    },
+    {
+        "name": "HubSpot Marketing Forms",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Forms",
+    },
+    {
+        "name": "HubSpot Marketing Subscriptions",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Subscription_Preferences",
+    },
+    {
+        "name": "HubSpot Marketing Transactional",
+        "docs_url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+        "check_frequency_days": 7,
+        "target_spec": "Transactional_Emails",
     },
 
-    # ── New APIs from ballerinax modules ──────────────────────────────────────
+    # ── Google APIs ───────────────────────────────────────────────────────────
+    # Google does not publish native OpenAPI 3.x specs for its Workspace APIs.
+    # The community-maintained apis.guru project converts Google's Discovery
+    # Documents into OpenAPI 3.x and is the most widely used source.
+    # Docs URL used is the official Google developer reference for each API.
     {
-        "name": "Discord",
-        "docs_url": "https://discord.com/developers/docs/reference",
-        "check_frequency_days": 7,
+        "name": "Google Calendar API",
+        "docs_url": "https://developers.google.com/workspace/calendar/api/v3/reference",
+        "check_frequency_days": 30,
     },
     {
-        "name": "Dayforce",
-        "docs_url": "https://developers.dayforce.com/Build/Home.aspx",
+        "name": "Gmail API",
+        "docs_url": "https://developers.google.com/workspace/gmail/api/reference/rest",
         "check_frequency_days": 30,
     },
 ]
@@ -84,7 +273,7 @@ API_DOCS = [
 def should_skip(api: dict) -> bool:
     """
     TODO: Enable frequency-skipping once tested.
-    Currently always returns False — every API always runs.
+    Currently always returns False — every API always runs a fresh search.
 
     Uncomment the block below to activate:
     """
@@ -198,12 +387,11 @@ def batch_find_specs(output_file: str = "openapi_specs.json"):
         if r["status"] == "found":
             tag  = " ← NEW VERSION" if r["is_new_version"] else ""
             fmt  = (r["format"] or "?").upper()
-            name = r["name"]
-            print(f"  ✓ {name:30s} {fmt:5s}  v{r['version']}  {r['spec_url']}{tag}")
+            print(f"  ✓ {r['name']:45s} {fmt:5s}  v{r['version']}  {r['spec_url']}{tag}")
         elif r["status"] == "skipped":
-            print(f"  - {r['name']:30s} skipped")
+            print(f"  - {r['name']:45s} skipped")
         else:
-            print(f"  ✗ {r['name']:30s} not found")
+            print(f"  ✗ {r['name']:45s} not found")
 
 
 if __name__ == "__main__":

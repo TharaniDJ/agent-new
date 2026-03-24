@@ -1,121 +1,14 @@
 {
-  "docs.stripe.com/api": {
-    "last_found_version": "3.0.0",
-    "last_found_url": "https://raw.githubusercontent.com/stripe/openapi/master/latest/openapi.spec3.yaml",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/stripe/openapi",
-    "useful_pages": [
-      "https://docs.stripe.com/api",
-      "https://github.com/stripe",
-      "https://github.com/stripe/openapi",
-      "https://github.com/stripe/openapi/tree/master/latest"
+  "github.com/HubSpot/HubSpot-public-api-spec-collection": {
+    "spec_url_history": [
+      "https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/main/PublicApiSpecs/Marketing/Transactional%20Single%20Send/Rollouts/140892/v3/transactionalSingleSend.json",
+      "https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/main/PublicApiSpecs/Marketing/Forms/Rollouts/144909/v3/forms.json",
+      "https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/main/PublicApiSpecs/Marketing/Marketing%20Events/Rollouts/129888/2026-09/marketingEvents.json",
+      "https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/main/PublicApiSpecs/Marketing/Marketing%20Emails%20V3/Rollouts/155892/v3/marketingEmailsV3.json",
+      "https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/main/PublicApiSpecs/CRM/Properties/Rollouts/145899/v3/properties.json"
     ],
-    "search_notes": "Found Stripe's official OpenAPI repository with latest GA specifications in /latest/ directory containing both v1 and v2 endpoints.",
-    "last_searched": "2026-03-19T10:05:24.441234+00:00"
-  },
-  "docs.github.com/en/rest": {
-    "last_found_version": "3.1.0",
-    "last_found_url": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions-next/api.github.com/api.github.com.yaml",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/github/rest-api-description",
-    "useful_pages": [
-      "https://docs.github.com/en/rest",
-      "https://docs.github.com/en/rest/about-the-rest-api/about-the-openapi-description-for-the-rest-api",
-      "https://github.com/github/rest-api-description",
-      "https://github.com/github/rest-api-description/tags"
-    ],
-    "search_notes": "Found the official GitHub REST API OpenAPI specs in the github/rest-api-description repository with the latest version being 2.1.0, containing OpenAPI 3.1 specs in descriptions-next and 3.0.1 specs in descriptions folders.",
-    "last_searched": "2026-03-23T09:39:20.891069+00:00"
-  },
-  "platform.openai.com/docs/api-reference": {
-    "last_found_version": "3.1.0",
-    "last_found_url": "https://app.stainless.com/api/spec/documented/openai/openapi.documented.yml",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/openai/openai-openapi",
-    "useful_pages": [
-      "https://github.com/openai/openai-openapi",
-      "https://github.com/openai/openai-openapi/releases",
-      "https://github.com/openai/openai-openapi/tree/manual_spec"
-    ],
-    "search_notes": "Found the official OpenAI OpenAPI repository which points to the most recent spec at Stainless and also contains a manual spec file.",
-    "last_searched": "2026-03-19T10:07:49.867869+00:00"
-  },
-  "developers.asana.com/reference/rest-api-reference": {
-    "last_found_version": "3.0.0",
-    "last_found_url": "https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/Asana/openapi",
-    "useful_pages": [
-      "https://developers.asana.com/docs",
-      "https://github.com/Asana/openapi"
-    ],
-    "search_notes": "Found the official Asana OpenAPI repository on GitHub with two specification files - one for the REST API and one for app components.",
-    "last_searched": "2026-03-23T09:37:40.781235+00:00"
-  },
-  "developers.docusign.com/docs/esign-rest-api": {
-    "last_found_version": "2.0",
-    "last_found_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/esignature.rest.swagger-v2.1.json",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/docusign/OpenAPI-Specifications",
-    "useful_pages": [
-      "https://developers.docusign.com/docs/esign-rest-api/",
-      "https://github.com/docusign/OpenAPI-Specifications",
-      "https://github.com/docusign/OpenAPI-Specifications/releases"
-    ],
-    "search_notes": "Found official OpenAPI specifications in DocuSign's GitHub repository, with v2.1 being the latest eSignature API version.",
-    "last_searched": "2026-03-23T09:40:32.266552+00:00"
-  },
-  "developer.candid.org/reference/openapi": {
     "last_found_version": "3.0.1",
-    "last_found_url": "https://developer.candid.org/openapi/69a9fcbafe150e84ef5085b9",
-    "last_search_outcome": "found",
-    "useful_pages": [
-      "https://developer.candid.org/reference/openapi",
-      "https://developer.candid.org/openapi"
-    ],
-    "search_notes": "Found the Premier API OpenAPI 3.0.1 specification directly from the Candid OpenAPI listings page.",
-    "last_searched": "2026-03-23T09:41:27.907425+00:00"
-  },
-  "discord.com/developers/docs/reference": {
-    "last_found_version": "3.1.0",
-    "last_found_url": "https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/discord/discord-api-spec",
-    "useful_pages": [
-      "https://discord.com/developers/docs/reference",
-      "https://discord.com/developers/docs/change-log",
-      "https://github.com/discord/discord-api-spec"
-    ],
-    "search_notes": "Found Discord's official OpenAPI 3.1 specification repository with both stable and preview versions in the specs directory.",
-    "last_searched": "2026-03-23T09:41:48.409780+00:00"
-  },
-  "developers.dayforce.com/Build/Home.aspx": {
-    "last_search_outcome": "not_found",
-    "last_searched": "2026-03-23T09:42:06.772781+00:00"
-  },
-  "developers.docusign.com/docs/admin-api": {
-    "last_found_version": "2.0",
-    "last_found_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/admin.rest.swagger-v2.1.json",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/docusign/docusign-admin-node-client",
-    "useful_pages": [
-      "https://developers.docusign.com/docs/admin-api/",
-      "https://github.com/docusign",
-      "https://github.com/docusign/docusign-admin-node-client"
-    ],
-    "search_notes": "Found DocuSign Admin Node.js SDK repository with swagger-codegen files indicating OpenAPI spec usage, latest version is 3.1.0.",
-    "last_searched": "2026-03-23T09:39:48.045296+00:00"
-  },
-  "developers.docusign.com/docs/click-api": {
-    "last_found_version": "2.0",
-    "last_found_url": "https://raw.githubusercontent.com/docusign/OpenAPI-Specifications/master/click.rest.swagger-v2.json",
-    "last_search_outcome": "found",
-    "spec_repo": "https://github.com/docusign/OpenAPI-Specifications",
-    "useful_pages": [
-      "https://developers.docusign.com/docs/click-api/",
-      "https://github.com/docusign/OpenAPI-Specifications"
-    ],
-    "search_notes": "Found Click API specs (v1 and v2) in DocuSign's official OpenAPI-Specifications GitHub repository",
-    "last_searched": "2026-03-23T09:40:11.411575+00:00"
+    "spec_repo": "https://github.com/HubSpot/HubSpot-public-api-spec-collection",
+    "search_notes": "Found HubSpot Marketing Transactional Single Send specs in rollout 140892 with both dated version (2026-09) and v3 version, following the established HubSpot repository structure."
   }
 }

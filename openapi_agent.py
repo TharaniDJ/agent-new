@@ -1,22 +1,26 @@
 """
-OpenAPI Spec Finder Agent - v4
-Fixes in this version:
-- Agent now constructs raw GitHub URLs immediately instead of fetching more tree pages
-- Agent told to pick highest version suffix in filenames (v2.1 > v2)
-- HEAD-check helper validates constructed URLs before they are reported as candidates
-- Prompt tells agent to read links from the official docs page first before navigating elsewhere
-- Candid: supports extracting multiple specific specs from one docs URL
-- Hallucinated URLs are caught before validation via HEAD pre-check
+OpenAPI Spec Finder Agent - v5
+
+Changes from v4:
+- temperature=0 on every LLM call → deterministic navigation decisions
+- Step 3 prompt: for GitHub repos, fetch commit history to find last-committed file
+  among same-version candidates (GitHub-specific only, guarded carefully)
+- Step 4 prompt: YAML preferred, JSON accepted as fallback if no YAML exists
+- Programmatic tiebreaker: GitHub Commits API used to rank same-version same-format candidates
+- Memory: removed useful_pages and last_search_outcome, added spec_url_history
+  (accumulating list of previously found URLs — newest first, max 5)
+- Memory hint: shows agent the URL history so it can identify repo/path patterns
 """
 
 import anthropic
 import json
 import os
+import re
 import requests
 import yaml
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 from urllib.parse import urljoin, urlparse
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -24,6 +28,7 @@ from urllib.parse import urljoin, urlparse
 # ─────────────────────────────────────────────────────────────────────────────
 
 MEMORY_FILE = "search_memory.json"
+MAX_URL_HISTORY = 5          # keep the N most recent found URLs per API
 
 
 def _memory_key(docs_url: str) -> str:
@@ -50,35 +55,71 @@ def get_memory_entry(docs_url: str) -> Optional[Dict[str, Any]]:
     return load_memory().get(_memory_key(docs_url))
 
 
-def update_memory_entry(docs_url: str, entry: Dict[str, Any]) -> None:
+def update_memory_entry(docs_url: str, new_spec_url: Optional[str], extra: Dict[str, Any]) -> None:
+    """
+    Update memory for a docs URL.
+    - Accumulates spec_url_history (newest first, capped at MAX_URL_HISTORY)
+    - Merges extra fields (spec_repo, search_notes, last_found_version)
+    - Intentionally does NOT store useful_pages or last_search_outcome
+    """
     memory = load_memory()
     key = _memory_key(docs_url)
     existing = memory.get(key, {})
-    existing.update(entry)
-    existing["last_searched"] = datetime.now(timezone.utc).isoformat()
+
+    # Accumulate URL history — newest first, no duplicates
+    if new_spec_url:
+        history: List[str] = existing.get("spec_url_history", [])
+        if new_spec_url in history:
+            history.remove(new_spec_url)          # move to front if already present
+        history.insert(0, new_spec_url)
+        existing["spec_url_history"] = history[:MAX_URL_HISTORY]
+
+    # Merge simple scalar fields
+    for k, v in extra.items():
+        if v is not None:
+            existing[k] = v
+
     memory[key] = existing
     save_memory(memory)
 
 
 def build_memory_hint(entry: Dict[str, Any]) -> str:
+    """
+    Build the natural-language hint appended to the system prompt.
+    Shows the agent:
+      - Which GitHub repo held the spec previously
+      - The last N spec URLs found (so it can see the URL pattern)
+      - The last known version (so it knows what to beat)
+      - Any search notes from last time
+    """
     parts = []
+
     if entry.get("spec_repo"):
         parts.append(
             f"Previously the spec was found in this repository: {entry['spec_repo']}. "
-            "Start there and check for the latest release or version."
+            "Start there and check for newer releases or files."
         )
-    if entry.get("useful_pages"):
-        pages = "\n".join(f"  - {p}" for p in entry["useful_pages"][:5])
-        parts.append(f"These pages were useful last time:\n{pages}")
+
+    history = entry.get("spec_url_history", [])
+    if history:
+        url_lines = "\n".join(f"  - {u}" for u in history[:3])
+        parts.append(
+            f"Previously found spec URLs (newest first — use these to understand "
+            f"the repo structure and file naming pattern):\n{url_lines}"
+        )
+
     if entry.get("last_found_version"):
         parts.append(
             f"The last known spec version was {entry['last_found_version']}. "
             "Look for anything newer — but always return the latest regardless."
         )
+
     if entry.get("search_notes"):
         parts.append(f"Notes from last search: {entry['search_notes']}")
+
     if not parts:
         return ""
+
     return (
         "\n\n## Memory from previous search\n"
         + "\n".join(parts)
@@ -94,7 +135,7 @@ def fetch_raw(url: str, timeout: int = 20) -> Optional[requests.Response]:
     try:
         resp = requests.get(
             url,
-            headers={"User-Agent": "OpenAPI-Spec-Finder/4.0"},
+            headers={"User-Agent": "OpenAPI-Spec-Finder/5.0"},
             timeout=timeout,
             allow_redirects=True,
         )
@@ -110,7 +151,7 @@ def head_check(url: str, timeout: int = 10) -> bool:
     try:
         resp = requests.head(
             url,
-            headers={"User-Agent": "OpenAPI-Spec-Finder/4.0"},
+            headers={"User-Agent": "OpenAPI-Spec-Finder/5.0"},
             timeout=timeout,
             allow_redirects=True,
         )
@@ -121,10 +162,56 @@ def head_check(url: str, timeout: int = 10) -> bool:
 
 def github_blob_to_raw(url: str) -> str:
     """Convert a github.com blob URL to raw.githubusercontent.com."""
-    # https://github.com/owner/repo/blob/branch/path → https://raw.githubusercontent.com/owner/repo/branch/path
     url = url.replace("https://github.com/", "https://raw.githubusercontent.com/")
     url = url.replace("/blob/", "/")
     return url
+
+
+def parse_github_raw_url(raw_url: str) -> Optional[Tuple[str, str, str, str]]:
+    """
+    Parse a raw.githubusercontent.com URL into (owner, repo, branch, filepath).
+    Returns None if not a raw GitHub URL.
+    Example:
+      https://raw.githubusercontent.com/stripe/openapi/master/openapi.yaml
+      → ("stripe", "openapi", "master", "openapi.yaml")
+    """
+    m = re.match(
+        r"https://raw\.githubusercontent\.com/([^/]+)/([^/]+)/([^/]+)/(.+)",
+        raw_url,
+    )
+    if not m:
+        return None
+    return m.group(1), m.group(2), m.group(3), m.group(4)
+
+
+def github_last_commit_ts(owner: str, repo: str, branch: str, filepath: str) -> Optional[str]:
+    """
+    Call the GitHub Commits API to get the timestamp of the most recent commit
+    that touched `filepath` in `owner/repo` on `branch`.
+    Returns an ISO timestamp string or None on failure.
+    No auth token required for public repos (60 req/hr unauthenticated).
+    """
+    api_url = (
+        f"https://api.github.com/repos/{owner}/{repo}/commits"
+        f"?path={filepath}&sha={branch}&per_page=1"
+    )
+    try:
+        resp = requests.get(
+            api_url,
+            headers={
+                "User-Agent": "OpenAPI-Spec-Finder/5.0",
+                "Accept": "application/vnd.github+json",
+            },
+            timeout=10,
+        )
+        if resp.status_code != 200:
+            return None
+        commits = resp.json()
+        if not commits:
+            return None
+        return commits[0]["commit"]["committer"]["date"]
+    except Exception:
+        return None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -188,23 +275,36 @@ def validate_openapi_spec(url: str) -> Dict[str, Any]:
     return result
 
 
+def _ver_tuple(ver_str: Optional[str]) -> tuple:
+    """Convert "3.1.0" → (3, 1, 0) for comparison. Unknown → (0,)."""
+    if not ver_str:
+        return (0,)
+    try:
+        return tuple(int(x) for x in ver_str.split("."))
+    except ValueError:
+        return (0,)
+
+
 def best_validated_url(candidates: List[str]) -> Optional[tuple]:
     """
-    Pre-check with HEAD before full download, to avoid wasting time on hallucinated URLs.
+    1. HEAD pre-check every candidate (cheap, catches hallucinated URLs).
+    2. Full parse + validate survivors.
+    3. Rank by: highest OpenAPI version → YAML over JSON → most recently
+       committed (GitHub Commits API, only called as tiebreaker on same-version
+       same-format pairs in GitHub raw URLs).
     Returns (best_url, validation_result) or None.
-    Prefers: highest OpenAPI version → YAML over JSON.
     """
-    valid_results = []
+    valid_results: List[Tuple[str, Dict[str, Any]]] = []
+
     for url in candidates:
         url = url.strip()
         if not url or not url.startswith("http"):
             continue
 
-        # Convert any github blob URLs to raw first
+        # Convert github.com blob → raw
         if "github.com" in url and "/blob/" in url:
             url = github_blob_to_raw(url)
 
-        # HEAD pre-check — skips hallucinated URLs cheaply
         print(f"  [head-check] {url}")
         if not head_check(url):
             print(f"    ✗ not reachable (skipping full download)")
@@ -221,15 +321,33 @@ def best_validated_url(candidates: List[str]) -> Optional[tuple]:
     if not valid_results:
         return None
 
-    def sort_key(item):
-        _url, vr = item
+    # ── Tiebreaker: GitHub last-commit timestamp ──────────────────────────────
+    # Only call the Commits API when two or more candidates share the same
+    # OpenAPI version AND the same format AND are both raw GitHub URLs.
+    # This is the expensive-but-accurate tiebreaker for repos like DocuSign
+    # where multiple versioned files coexist.
+    commit_cache: Dict[str, Optional[str]] = {}
+
+    def last_commit(url: str) -> Optional[str]:
+        if url not in commit_cache:
+            parsed = parse_github_raw_url(url)
+            if parsed:
+                owner, repo, branch, filepath = parsed
+                ts = github_last_commit_ts(owner, repo, branch, filepath)
+                commit_cache[url] = ts
+                if ts:
+                    print(f"  [commit-ts]  {url.split('/')[-1]} → {ts}")
+            else:
+                commit_cache[url] = None
+        return commit_cache[url]
+
+    def sort_key(item: Tuple[str, Dict]) -> tuple:
+        url, vr = item
+        ver_score = _ver_tuple(vr.get("version"))
         fmt_score = 1 if vr["format"] == "yaml" else 0
-        ver = vr["version"] or "0"
-        try:
-            ver_score = float(ver.split(".")[0])
-        except ValueError:
-            ver_score = 0
-        return (ver_score, fmt_score)
+        # Commit timestamp as tiebreaker — only fetched when needed
+        ts = last_commit(url) or "0000-00-00T00:00:00Z"
+        return (ver_score, fmt_score, ts)
 
     valid_results.sort(key=sort_key, reverse=True)
     return valid_results[0]
@@ -268,6 +386,7 @@ def fetch_page(url: str) -> Dict[str, Any]:
                 ".json", ".yaml", ".yml", "raw.githubusercontent",
                 "spec3", "api-reference", "rest-api-description",
                 "releases", "tags", "tree/main", "tree/master", "/defs/",
+                "commits", "blob/main", "blob/master",
             ]):
                 seen.add(full)
                 links.append({"text": a.get_text(strip=True)[:80], "href": full})
@@ -303,19 +422,41 @@ If you find a GitHub repository link or a file path reference:
   github.com/owner/repo/blob/branch/path/file.yaml → raw.githubusercontent.com/owner/repo/branch/path/file.yaml
 - Report the constructed raw URL as a candidate right away
 
-### Step 3 — Pick the highest version
+### Step 3 — Picking the latest version (read carefully)
+
+**3a — Version number in filename takes priority**
 When multiple versioned files exist (e.g. swagger-v2.json and swagger-v2.1.json):
 - Always prefer the highest version number (v2.1 > v2, v3 > v2)
-- Look for the version number in the FILENAME itself (e.g. -v2.1.json means API version 2.1)
-- Also check GitHub Releases/Tags for the latest release tag
+- Parse the version from the FILENAME itself (e.g. -v2.1.json = version 2.1)
+- Report ALL versioned variants as candidates — the validator will pick the best
 
-### Step 4 — Prefer YAML over JSON at the same version
+**3b — For GitHub-hosted spec repositories, check the commit history**
+This applies ONLY when the specs live in a dedicated GitHub repository (like
+github.com/stripe/openapi or github.com/docusign/OpenAPI-Specifications).
+Do NOT apply this to general documentation websites.
+- If you find a GitHub repo with multiple spec files of the same version,
+  fetch the repo's commit list page: github.com/owner/repo/commits/main
+  (or /commits/master if main does not exist)
+- Read the commit timestamps to identify which spec file was committed most recently
+- Include the most recently committed file in your candidates
+- This ensures you get the file that was actually updated last, not just the one with
+  the highest version suffix
+
+**3c — GitHub Releases / Tags as a cross-check**
+- If the repo has a Releases page, check it to confirm the latest tagged release
+- The latest release tag is a strong signal for which files are current
+
+### Step 4 — Format preference
+- Always prefer YAML over JSON when both exist at the same version
+- If only JSON exists, JSON is perfectly acceptable — report it
+- Never skip a valid JSON spec just because YAML is not available
 
 ## Efficiency rules
 - Fetch the starting docs page first — read it carefully before going anywhere else
-- Fetch at MOST 4 pages total
-- Never fetch github.com tree/blob pages to "see" files — construct raw URLs directly instead
+- Fetch at MOST 4 pages total (counting commits/releases pages)
+- Never fetch github.com tree/blob pages to read file contents — construct raw URLs directly
 - Never fetch the same URL twice
+- Report ALL plausible candidates — the validator handles the final selection
 
 ## Output format — output EXACTLY this block when done:
 
@@ -323,8 +464,7 @@ SPEC_CANDIDATES:
 <url1>
 <url2>
 SEARCH_NOTES: <one sentence about where/how you found it>
-SPEC_REPO: <GitHub or source repo URL if applicable, else omit>
-USEFUL_PAGES: <comma-separated pages that helped>
+SPEC_REPO: <GitHub or source repo URL if applicable, else omit this line>
 
 If no public spec exists after thorough search:
 NO_SPEC_FOUND
@@ -335,7 +475,9 @@ TOOLS = [
         "name": "fetch_page",
         "description": (
             "Fetches a web page and returns its text content plus relevant links. "
-            "For GitHub tree/blob pages, do NOT fetch — instead construct raw.githubusercontent.com URLs directly. "
+            "Use for: documentation pages, GitHub repo home pages, GitHub commits pages, "
+            "GitHub releases pages. "
+            "Do NOT use for GitHub tree/blob file-listing pages — construct raw.githubusercontent.com URLs directly instead. "
             "Do NOT fetch the same URL twice."
         ),
         "input_schema": {
@@ -362,7 +504,6 @@ class OpenAPIAgent:
             "candidates": [],
             "search_notes": None,
             "spec_repo": None,
-            "useful_pages": [],
         }
         if "SPEC_CANDIDATES:" not in text:
             return result
@@ -376,9 +517,6 @@ class OpenAPIAgent:
                 result["search_notes"] = line.replace("SEARCH_NOTES:", "").strip()
             elif line.startswith("SPEC_REPO:"):
                 result["spec_repo"] = line.replace("SPEC_REPO:", "").strip()
-            elif line.startswith("USEFUL_PAGES:"):
-                pages_raw = line.replace("USEFUL_PAGES:", "").strip()
-                result["useful_pages"] = [p.strip() for p in pages_raw.split(",") if p.strip()]
         return result
 
     def run(
@@ -386,14 +524,12 @@ class OpenAPIAgent:
         starting_url: str,
         api_name: str = "",
         max_iterations: int = 6,
-        target_title: Optional[str] = None,   # for multi-spec APIs like Candid
+        target_title: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Main agent loop. Always does a fresh search for the latest spec.
-        Memory guides navigation strategy, never skips the search.
-
-        target_title: if set, the agent is told to find a specific named spec
-                      (used when one docs URL has multiple specs, e.g. Candid).
+        Memory guides navigation strategy but never skips the search.
+        temperature=0 for deterministic navigation decisions.
 
         Returns:
         {
@@ -413,6 +549,9 @@ class OpenAPIAgent:
             print(f"  [memory] Previous search data found — guiding agent navigation")
             if last_known_version:
                 print(f"  [memory] Last known version: {last_known_version}")
+            history = (mem_entry or {}).get("spec_url_history", [])
+            if history:
+                print(f"  [memory] URL history: {history[0]}")
 
         system_prompt = BASE_SYSTEM_PROMPT + memory_hint
 
@@ -430,8 +569,9 @@ class OpenAPIAgent:
                 "Check if a newer version exists — but always return the latest regardless.\n"
             )
         user_msg += (
-            "\nIMPORTANT: Fetch the starting docs page first and read ALL links carefully before going elsewhere. "
-            "Fetch at most 4 pages total. Output SPEC_CANDIDATES: as soon as you have plausible URLs."
+            "\nIMPORTANT: Fetch the starting docs page first and read ALL links carefully "
+            "before going elsewhere. Fetch at most 4 pages total. "
+            "Output SPEC_CANDIDATES: as soon as you have plausible URLs."
         )
 
         messages = [{"role": "user", "content": user_msg}]
@@ -444,6 +584,7 @@ class OpenAPIAgent:
             response = self.client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=1500,
+                temperature=0,          # ← deterministic: always picks highest-prob token
                 system=system_prompt,
                 tools=TOOLS,
                 messages=messages,
@@ -462,7 +603,6 @@ class OpenAPIAgent:
                             break
                     if "NO_SPEC_FOUND" in block.text:
                         print("  Agent reports no spec found.")
-                        update_memory_entry(starting_url, {"last_search_outcome": "not_found"})
                         return None
 
             if found_candidates:
@@ -475,7 +615,9 @@ class OpenAPIAgent:
                     if block.type == "tool_use" and block.name == "fetch_page":
                         url = block.input["url"]
                         if url in fetched_urls:
-                            content = json.dumps({"error": "Already fetched this URL. Choose a different one."})
+                            content = json.dumps({
+                                "error": "Already fetched this URL. Choose a different one."
+                            })
                         else:
                             fetched_urls.add(url)
                             print(f"  Fetching: {url}")
@@ -517,26 +659,22 @@ class OpenAPIAgent:
         is_new_version = False
         if last_known_version and vr["version"]:
             try:
-                old_parts = [int(x) for x in last_known_version.split(".")]
-                new_parts = [int(x) for x in vr["version"].split(".")]
+                old_parts = _ver_tuple(last_known_version)
+                new_parts = _ver_tuple(vr["version"])
                 is_new_version = new_parts > old_parts
-            except ValueError:
+            except Exception:
                 is_new_version = vr["version"] != last_known_version
 
         # ── Update memory ──
-        memory_update: Dict[str, Any] = {
-            "last_found_version": vr["version"],
-            "last_found_url": best_url,
-            "last_search_outcome": "found",
-        }
-        if parsed_output.get("spec_repo"):
-            memory_update["spec_repo"] = parsed_output["spec_repo"]
-        if parsed_output.get("useful_pages"):
-            memory_update["useful_pages"] = parsed_output["useful_pages"]
-        if parsed_output.get("search_notes"):
-            memory_update["search_notes"] = parsed_output["search_notes"]
-
-        update_memory_entry(starting_url, memory_update)
+        update_memory_entry(
+            docs_url=starting_url,
+            new_spec_url=best_url,
+            extra={
+                "last_found_version": vr["version"],
+                "spec_repo": parsed_output.get("spec_repo"),
+                "search_notes": parsed_output.get("search_notes"),
+            },
+        )
         print(f"  [memory] Updated for {_memory_key(starting_url)}")
 
         return {
